@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Master Notes — Engineering Blog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: #111318;
+      --surface2: #1a1d25;
+      --border: #22262f;
+      --accent: #00e5b0;
+      --accent2: #ff6b35;
+      --accent3: #7c6fff;
+      --accent4: #f4c842;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --tag-bg: rgba(0,229,176,0.07);
+      --code-bg: #0d1117;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999; opacity: 0.55;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,176,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,176,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrapper { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,12,16,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 2rem; max-width: 1160px; margin: 0 auto;
+    }
+    .nav-brand {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+      color: var(--text); letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-brand .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+      color: var(--muted); text-decoration: none; letter-spacing: 0.1em;
+      text-transform: uppercase; transition: color 0.2s; cursor: pointer;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero { padding: 7rem 0 5rem; position: relative; }
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+      color: var(--accent); letter-spacing: 0.22em; text-transform: uppercase;
+      margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;
+      animation: fadeUp 0.5s ease both;
+    }
+    .hero-eyebrow::before { content: ''; display: block; width: 36px; height: 1px; background: var(--accent); }
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      line-height: 1.05; font-weight: 400; margin-bottom: 1.5rem;
+      animation: fadeUp 0.5s 0.08s ease both;
+    }
+    .hero-title em { font-style: italic; color: var(--accent); }
+    .hero-subtitle {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;
+      color: var(--muted); max-width: 520px; line-height: 1.7;
+      animation: fadeUp 0.5s 0.16s ease both;
+    }
+    .hero-stats {
+      display: flex; gap: 3rem; margin-top: 3rem;
+      animation: fadeUp 0.5s 0.24s ease both;
+    }
+    .stat-num { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: var(--text); line-height: 1; }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.25rem; }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+      padding: 1.5rem 0; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); margin-bottom: 3.5rem;
+    }
+    .filter-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-right: 0.5rem; }
+    .filter-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.07em;
+      padding: 0.35rem 0.9rem; border: 1px solid var(--border); border-radius: 2px;
+      background: none; color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); background: var(--tag-bg); }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
+
+    /* FEATURED CARD */
+    .featured-card {
+      border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+      padding: 2.5rem; margin-bottom: 4rem;
+      display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .featured-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(to right, var(--accent), var(--accent3));
+    }
+    .featured-card:hover { border-color: rgba(0,229,176,0.3); transform: translateY(-2px); }
+    .featured-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.75rem; }
+    .featured-title { font-family: 'DM Serif Display', serif; font-size: 2.2rem; font-weight: 400; line-height: 1.15; margin-bottom: 0.75rem; }
+    .featured-title em { font-style: italic; color: var(--accent); }
+    .featured-desc { font-family: 'Syne', sans-serif; font-size: 0.9rem; color: var(--muted); max-width: 580px; margin-bottom: 1.5rem; }
+    .featured-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .pill { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; padding: 0.25rem 0.7rem; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); }
+    .featured-aside { display: flex; flex-direction: column; align-items: flex-end; gap: 1rem; min-width: 140px; }
+    .big-icon { font-size: 4rem; line-height: 1; }
+    .module-count { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-align: right; }
+    .arrow-btn { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); border: 1px solid var(--accent); padding: 0.5rem 1rem; border-radius: 2px; white-space: nowrap; transition: background 0.15s; }
+    .featured-card:hover .arrow-btn { background: var(--tag-bg); }
+
+    /* BLOG GRID */
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 5rem; }
+    .blog-card {
+      border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+      padding: 1.75rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: border-color 0.2s, transform 0.2s; position: relative; overflow: hidden;
+    }
+    .blog-card:hover { border-color: rgba(0,229,176,0.3); transform: translateY(-3px); }
+    .blog-card.coming-soon { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+    .blog-card[data-cat="bigdata"]::before { background: linear-gradient(90deg, var(--accent), var(--accent3)); }
+    .blog-card[data-cat="ml"]::before     { background: linear-gradient(90deg, var(--accent2), var(--accent4)); }
+    .blog-card[data-cat="cloud"]::before  { background: linear-gradient(90deg, #38bdf8, #818cf8); }
+    .blog-card[data-cat="devops"]::before { background: linear-gradient(90deg, #fb923c, #f43f5e); }
+    .blog-card[data-cat="ai"]::before     { background: linear-gradient(90deg, #a78bfa, #ec4899); }
+    .blog-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity 0.2s; }
+    .blog-card:hover::before { opacity: 1; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .card-icon-wrap { width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; font-size: 1.4rem; }
+    .card-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; padding: 0.2rem 0.55rem; border-radius: 20px; border: 1px solid; text-transform: uppercase; }
+    .badge-bigdata { color: var(--accent); border-color: rgba(0,229,176,0.3); background: rgba(0,229,176,0.06); }
+    .badge-ml      { color: var(--accent2); border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.06); }
+    .badge-cloud   { color: #38bdf8; border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.06); }
+    .badge-devops  { color: #fb923c; border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.06); }
+    .badge-ai      { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
+    .badge-soon    { color: var(--muted); border-color: var(--border); }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; font-weight: 400; line-height: 1.3; color: var(--text); }
+    .card-desc { font-family: 'Syne', sans-serif; font-size: 0.82rem; color: var(--muted); line-height: 1.6; flex: 1; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: auto; }
+    .card-modules { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .card-arrow { font-size: 0.8rem; color: var(--accent); opacity: 0; transition: opacity 0.15s, transform 0.15s; }
+    .blog-card:hover .card-arrow { opacity: 1; transform: translateX(3px); }
+
+    /* ARTICLE VIEW */
+    #article-view { display: none; padding-bottom: 6rem; }
+    .back-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+      color: var(--muted); background: none; border: 1px solid var(--border);
+      padding: 0.5rem 1rem; border-radius: 2px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 2.5rem; transition: all 0.15s; letter-spacing: 0.05em;
+    }
+    .back-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ARTICLE COMPONENTS */
+    .article {
+      border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+      margin-bottom: 2.5rem; overflow: hidden;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.2s;
+    }
+    .article.visible { opacity: 1; transform: translateY(0); }
+    .article:hover { border-color: rgba(0,229,176,0.2); }
+    .article-header { padding: 1.75rem 2rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 1.25rem; }
+    .article-icon { font-size: 1.6rem; flex-shrink: 0; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; }
+    .article-num { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.15em; margin-bottom: 0.2rem; }
+    .article-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400; line-height: 1.2; }
+    .article-title em { font-style: italic; color: var(--accent); }
+    .article-body { padding: 1.75rem 2rem; }
+
+    h3 { font-family: 'Syne', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin: 1.75rem 0 0.65rem; }
+    p { font-family: 'Syne', sans-serif; font-size: 0.92rem; color: #94a3b8; margin-bottom: 0.9rem; }
+    strong { color: var(--text); font-weight: 600; }
+    .lead { font-size: 1rem; color: #b0bec5; border-left: 3px solid var(--accent); padding-left: 1.1rem; margin-bottom: 1.4rem; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.85rem; margin: 1.1rem 0; }
+    .card-sm { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 1.1rem; transition: border-color 0.15s, transform 0.15s; }
+    .card-sm:hover { border-color: var(--accent3); transform: translateY(-2px); }
+    .card-sm-icon { font-size: 1.2rem; margin-bottom: 0.4rem; }
+    .card-sm-title { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+    .card-sm-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); line-height: 1.5; margin: 0; }
+
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-left: 3px solid var(--accent3); border-radius: 4px; padding: 1.25rem; overflow-x: auto; margin: 1.1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; line-height: 1.6; color: #a8b5c9; }
+    pre .kw { color: #c792ea; }
+    pre .str { color: #c3e88d; }
+    pre .cmt { color: #546e7a; font-style: italic; }
+    pre .fn { color: #82aaff; }
+    pre .val { color: #f78c6c; }
+    pre .op { color: var(--accent); }
+
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.8em; background: var(--surface2); border: 1px solid var(--border); padding: 0.12em 0.4em; border-radius: 2px; color: var(--accent2); }
+
+    .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin: 1.1rem 0; padding: 1.1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; }
+    .flow-node { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 0.35rem 0.8rem; background: var(--bg); border: 1px solid var(--accent3); border-radius: 2px; color: var(--text); white-space: nowrap; }
+    .flow-arrow { color: var(--accent); font-size: 0.9rem; flex-shrink: 0; }
+
+    .kv-table { width: 100%; border-collapse: collapse; margin: 1.1rem 0; font-size: 0.85rem; }
+    .kv-table th { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border); }
+    .kv-table td { font-family: 'Syne', sans-serif; font-size: 0.85rem; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--border); color: #94a3b8; vertical-align: top; }
+    .kv-table tr:hover td { background: var(--surface2); }
+    .kv-table td:first-child { color: var(--text); font-weight: 600; }
+
+    .callout { display: flex; gap: 0.9rem; padding: 1.1rem 1.4rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; margin: 1.1rem 0; }
+    .callout.accent { border-left: 3px solid var(--accent); }
+    .callout.orange { border-left: 3px solid var(--accent2); }
+    .callout.purple { border-left: 3px solid var(--accent3); }
+    .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .callout-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #94a3b8; line-height: 1.6; margin: 0; }
+    .callout-text strong { color: var(--text); }
+
+    ul.styled { list-style: none; margin: 0.9rem 0; padding: 0; }
+    ul.styled li { font-family: 'Syne', sans-serif; font-size: 0.88rem; color: #94a3b8; padding: 0.3rem 0; padding-left: 1.2rem; position: relative; }
+    ul.styled li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin: 1.1rem 0; }
+    .compare-col { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 1.1rem; }
+    .compare-col h4 { font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.65rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .compare-col.left h4 { color: var(--accent2); }
+    .compare-col.right h4 { color: var(--accent); }
+
+    /* ABOUT */
+    .about-box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 2rem; max-width: 680px; margin-bottom: 5rem; }
+    .about-box p { color: #b0bec5; font-size: 0.95rem; margin-bottom: 0.75rem; }
+    .about-box p:last-child { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); margin: 0; }
+
+    /* FOOTER */
+    footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 2.5rem 0; text-align: center; }
+    footer p { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); margin: 0; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    @media (max-width: 720px) {
+      .featured-card { grid-template-columns: 1fr; }
+      .featured-aside { flex-direction: row; align-items: center; }
+      .compare { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .hero-stats { gap: 2rem; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 480px) {
+      .cards { grid-template-columns: 1fr; }
+      .blog-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand" onclick="showHome()" style="cursor:pointer;">
+      <span class="dot"></span> master.notes
+    </div>
+    <ul class="nav-links">
+      <li><a onclick="showHome()" style="cursor:pointer;">Home</a></li>
+      <li><a onclick="showHome()" style="cursor:pointer;">Series</a></li>
+      <li><a onclick="showHome()" style="cursor:pointer;">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══ HOME VIEW ══════════════════════════════════════════════ -->
+<div id="home-view">
+  <section class="hero">
+    <div class="wrapper">
+      <div class="hero-eyebrow">Personal Knowledge Base</div>
+      <h1 class="hero-title">Engineering<br><em>Master Notes</em></h1>
+      <p class="hero-subtitle">// Structured deep-dives across Big Data, Machine Learning, Cloud, and DevOps — compiled from real courses and hands-on practice.</p>
+      <div class="hero-stats">
+        <div><div class="stat-num">3</div><div class="stat-label">Series</div></div>
+        <div><div class="stat-num">22</div><div class="stat-label">Modules</div></div>
+        <div><div class="stat-num">23</div><div class="stat-label">Topics</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrapper">
+    <!-- FILTER -->
+    <div class="filter-bar">
+      <span class="filter-label">Filter</span>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="bigdata">Big Data</button>
+      <button class="filter-btn" data-filter="ml">Machine Learning</button>
+      <button class="filter-btn" data-filter="ai">AI Agents</button>
+    </div>
+
+    <!-- FEATURED -->
+    <div class="section-label">Featured Series</div>
+    <div class="featured-card" onclick="openSeries('bigdata')" style="cursor:pointer;" data-cat="bigdata">
+      <div>
+        <div class="featured-meta">Series 01 · Big Data Engineering</div>
+        <h2 class="featured-title">Big Data<br><em>Engineering</em></h2>
+        <p class="featured-desc">A comprehensive study of the modern distributed data stack — from HDFS fundamentals to real-time Kafka streaming and cloud-native Athena queries.</p>
+        <div class="featured-tags">
+          <span class="pill">HDFS</span><span class="pill">Apache Spark</span><span class="pill">Apache Kafka</span>
+          <span class="pill">HBase</span><span class="pill">Sqoop</span><span class="pill">Airflow</span><span class="pill">Athena · Glue</span>
+        </div>
+      </div>
+      <div class="featured-aside">
+        <div class="big-icon">🗄️</div>
+        <div class="module-count">7 modules<br>in series</div>
+        <div class="arrow-btn">Read Series →</div>
+      </div>
+    </div>
+
+    <!-- ALL SERIES GRID -->
+    <div id="series">
+      <div class="section-label">All Series</div>
+      <div class="blog-grid">
+
+        <div class="blog-card" onclick="openSeries('bigdata')" style="cursor:pointer;" data-cat="bigdata">
+          <div class="card-top">
+            <div class="card-icon-wrap">🗄️</div>
+            <span class="card-badge badge-bigdata">Big Data</span>
+          </div>
+          <div class="card-title">Big Data Engineering</div>
+          <div class="card-desc">HDFS, Spark, Kafka, HBase, Sqoop, Airflow, Athena &amp; Glue — the full distributed data stack.</div>
+          <div class="card-footer"><span class="card-modules">7 modules</span><span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- ADD NEW LIVE SERIES HERE — copy the block above, change data-cat, onclick, icon, badge, title, desc, modules -->
+
+        <div class="blog-card" onclick="openSeries('ml')" style="cursor:pointer;" data-cat="ml">
+          <div class="card-top"><div class="card-icon-wrap">🤖</div><span class="card-badge badge-ml">Machine Learning</span></div>
+          <div class="card-title">Machine Learning</div>
+          <div class="card-desc">Supervised &amp; unsupervised learning, neural networks, boosting, reinforcement learning, and more.</div>
+          <div class="card-footer"><span class="card-modules">9 modules</span><span class="card-arrow">→</span></div>
+        </div>
+
+        <div class="blog-card" onclick="openSeries('ai')" style="cursor:pointer;" data-cat="ai">
+          <div class="card-top"><div class="card-icon-wrap">🤖</div><span class="card-badge badge-ai">AI Agents</span></div>
+          <div class="card-title">AI Agents</div>
+          <div class="card-desc">LLMs, RAG, agentic AI, agent architecture, model types, and building end-to-end AI systems.</div>
+          <div class="card-footer"><span class="card-modules">6 modules</span><span class="card-arrow">→</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div id="about">
+      <div class="section-label">About This Blog</div>
+      <div class="about-box">
+        <p>Personal study notes compiled across multiple courses and projects. Each series covers a domain end-to-end — from core concepts to architecture deep-dives, code examples, and comparisons.</p>
+        <p>New series are added as topics are studied. · Built for portfolio.</p>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /home-view -->
+
+<!-- ══ ARTICLE VIEW ═══════════════════════════════════════════ -->
+<div id="article-view">
+  <div class="wrapper">
+    <button class="back-btn" onclick="showHome()">← Back to all series</button>
+    <div id="article-content"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrapper">
+    <p>Master Notes · Personal Portfolio Series · Built with pure HTML</p>
+  </div>
+</footer>
+
+<!-- ══ DATA + LOGIC ═══════════════════════════════════════════ -->
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   SERIES REGISTRY
+   ─────────────────────────────────────────────────────────────
+   To add a new series, add a new key below with:
+     label, title, titleEm, articles[]
+   Each article: { id, icon, module, title, titleEm, body }
+   body is an HTML string using the component classes.
+═══════════════════════════════════════════════════════════════ */
+const SERIES = {
+
+  bigdata: {
+    label: 'Series 01 · Big Data Engineering',
+    title: 'Big Data ',
+    titleEm: 'Engineering',
+    articles: [
+
+      { id:'hdfs', icon:'🗄️', module:'Module 01 — Storage', title:'HDFS & ', titleEm:'Hadoop', body:`
+        <p class="lead">Hadoop is a framework to solve big data problems — storing and processing data too large for traditional systems — using distributed architecture and commodity hardware.</p>
+        <h3>Why Distributed?</h3>
+        <div class="compare">
+          <div class="compare-col left"><h4>Monolithic (Vertical Scale)</h4><ul class="styled"><li>One powerful machine</li><li>Hard to scale past a limit</li><li>2× resources ≠ 2× performance</li></ul></div>
+          <div class="compare-col right"><h4>Distributed (Horizontal Scale)</h4><ul class="styled"><li>Many cheap machines together</li><li>Linearly scalable</li><li>2× resources = 2× performance</li></ul></div>
+        </div>
+        <h3>Evolution Timeline</h3>
+        <div class="flow">
+          <div class="flow-node">2003 · GFS Paper</div><div class="flow-arrow">→</div>
+          <div class="flow-node">2004 · MapReduce Paper</div><div class="flow-arrow">→</div>
+          <div class="flow-node">2006 · Yahoo HDFS</div><div class="flow-arrow">→</div>
+          <div class="flow-node">2009 · Apache OSS</div><div class="flow-arrow">→</div>
+          <div class="flow-node">2013 · Hadoop 2.0 + YARN</div>
+        </div>
+        <h3>HDFS Architecture</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">👑</div><div class="card-sm-title">NameNode (Master)</div><div class="card-sm-desc">Holds metadata — block locations, file structure. High-quality hardware.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">💾</div><div class="card-sm-title">DataNode (Slave)</div><div class="card-sm-desc">Stores actual data as blocks. Commodity hardware. Default block size: 128 MB.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📸</div><div class="card-sm-title">FsImage</div><div class="card-sm-desc">Snapshot of in-memory filesystem at a given point in time.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📝</div><div class="card-sm-title">Edit Logs</div><div class="card-sm-desc">Transaction log of all changes after the last snapshot. Merged by Secondary NN.</div></div>
+        </div>
+        <h3>Fault Tolerance & HA</h3>
+        <ul class="styled">
+          <li>Default replication factor: <strong>3</strong> — replicas spread across racks</li>
+          <li><strong>Rack Awareness</strong>: 1 replica on one rack, 2 on another</li>
+          <li><strong>Secondary NameNode</strong>: merges FsImage + EditLogs (not a failover node)</li>
+          <li><strong>Standby NameNode (Hadoop 2+)</strong>: true HA via Quorum Journal Nodes</li>
+        </ul>
+        <div class="callout accent"><span class="callout-icon">💡</span><p class="callout-text"><strong>Block Size Sweet Spot:</strong> Too large = cluster underutilization. Too small = NameNode metadata overload. 128 MB is the default for good reason.</p></div>
+      `},
+
+      { id:'spark', icon:'⚡', module:'Module 02 — Processing', title:'Apache ', titleEm:'Spark', body:`
+        <p class="lead">A general-purpose, in-memory compute engine — 10–100× faster than MapReduce. Plug-and-play with any storage (HDFS, S3) and resource manager (YARN, Kubernetes).</p>
+        <h3>The 3 Pillars</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🧠</div><div class="card-sm-title">In-Memory</div><div class="card-sm-desc">Only 2 disk I/Os total vs. 2× per MapReduce stage.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔌</div><div class="card-sm-title">General Purpose</div><div class="card-sm-desc">One API for batch, streaming, ML, and graph processing.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔒</div><div class="card-sm-title">Resilient (RDD)</div><div class="card-sm-desc">Fault tolerance via lineage graph, not replication.</div></div>
+        </div>
+        <div class="callout orange"><span class="callout-icon">⚠️</span><p class="callout-text"><strong>Lazy evaluation:</strong> Transformations build a DAG. Nothing executes until an <strong>Action</strong> is called (e.g., <code>collect()</code>, <code>saveAsTextFile()</code>).</p></div>
+        <h3>Transformations vs Actions</h3>
+        <table class="kv-table">
+          <thead><tr><th>Type</th><th>Examples</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Narrow (no shuffle)</td><td>map, flatMap, filter</td><td>New RDD, partition-local</td></tr>
+            <tr><td>Wide (shuffle)</td><td>reduceByKey, groupByKey, join</td><td>New RDD, data moves across network</td></tr>
+            <tr><td>Action</td><td>collect, count, saveAsTextFile</td><td>Local variable or side effect</td></tr>
+          </tbody>
+        </table>
+        <div class="callout purple"><span class="callout-icon">🔑</span><p class="callout-text"><strong>Always prefer <code>reduceByKey</code> over <code>groupByKey</code>.</strong> reduceByKey pre-aggregates per partition before shuffling — far less data over the network, avoids OOM on skewed data.</p></div>
+        <h3>WordCount Example</h3>
+        <pre><span class="cmt">// Spark Scala word count pipeline</span>
+<span class="kw">val</span> rdd1 = sc.textFile(<span class="str">"hdfs://data/input.txt"</span>)
+<span class="kw">val</span> rdd2 = rdd1.<span class="fn">flatMap</span>(x => x.split(<span class="str">" "</span>))
+<span class="kw">val</span> rdd3 = rdd2.<span class="fn">map</span>(x => (x, <span class="val">1</span>))
+<span class="kw">val</span> rdd4 = rdd3.<span class="fn">reduceByKey</span>((x, y) => x + y)
+<span class="kw">val</span> result = rdd4.<span class="fn">collect</span>()  <span class="cmt">// triggers DAG execution</span></pre>
+        <h3>Key Performance Concepts</h3>
+        <table class="kv-table">
+          <thead><tr><th>Concept</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td>repartition()</td><td>Increases or decreases partitions. Full shuffle.</td></tr>
+            <tr><td>coalesce()</td><td>Only decreases partitions. Minimises shuffle. Preferred for downsizing.</td></tr>
+            <tr><td>cache() / persist()</td><td>Reuse computed RDD. MEMORY_ONLY, DISK_ONLY, MEMORY_AND_DISK.</td></tr>
+            <tr><td>Broadcast variables</td><td>Read-only copy on each executor — avoids shuffle for lookups.</td></tr>
+            <tr><td>Accumulators</td><td>Write-only counters aggregated by driver.</td></tr>
+          </tbody>
+        </table>
+        <h3>Streaming — DStream</h3>
+        <div class="flow">
+          <div class="flow-node">Live Stream</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Micro-batch RDDs</div><div class="flow-arrow">→</div>
+          <div class="flow-node">DStream</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Transformations</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Output</div>
+        </div>
+        <table class="kv-table">
+          <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Stateless</td><td>Operates on one RDD at a time</td><td>reduceByKey per batch</td></tr>
+            <tr><td>Stateful</td><td>Accumulates across all RDDs</td><td>updateStateByKey (running total)</td></tr>
+            <tr><td>Windowed</td><td>Sliding window of RDDs</td><td>reduceByKeyAndWindow (last 30 sec)</td></tr>
+          </tbody>
+        </table>
+      `},
+
+      { id:'kafka', icon:'📨', module:'Module 03 — Messaging', title:'Apache ', titleEm:'Kafka', body:`
+        <p class="lead">A distributed publish-subscribe messaging system that decouples producers and consumers, provides durable buffering, and enables real-time streaming pipelines.</p>
+        <h3>Why Kafka Over Sockets?</h3>
+        <table class="kv-table">
+          <thead><tr><th>Problem (Socket)</th><th>Solution (Kafka)</th></tr></thead>
+          <tbody>
+            <tr><td>No buffering → data loss on slow consumer</td><td>Persistent buffer — consumer reads at own pace</td></tr>
+            <tr><td>One producer → one consumer, tightly coupled</td><td>One producer → many consumers, decoupled</td></tr>
+            <tr><td>Data consumed = data gone</td><td>Data retained for 7 days (configurable)</td></tr>
+          </tbody>
+        </table>
+        <h3>Core Concepts</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🏢</div><div class="card-sm-title">Broker</div><div class="card-sm-desc">A node running Kafka. 5 brokers = 5-node cluster.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📌</div><div class="card-sm-title">Topic</div><div class="card-sm-desc">Unique named channel holding one type of data (tweets, bank-txns).</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🗂️</div><div class="card-sm-title">Partition</div><div class="card-sm-desc">A topic is split into ordered, immutable partitions.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔢</div><div class="card-sm-title">Offset</div><div class="card-sm-desc">Sequential ID for each message within a partition. Enables replay.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">👥</div><div class="card-sm-title">Consumer Group</div><div class="card-sm-desc">1 partition → 1 consumer. 1 consumer → many partitions.</div></div>
+        </div>
+        <h3>Architecture Flow</h3>
+        <div class="flow">
+          <div class="flow-node">Producer (Twitter App)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Kafka Cluster (3 Brokers)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Consumer (Spark Streaming)</div>
+        </div>
+        <div class="callout accent"><span class="callout-icon">💡</span><p class="callout-text"><strong>Pub-Sub Model:</strong> Unlike traditional queues, Kafka retains messages. Multiple consumer groups can independently replay and process the same topic data.</p></div>
+      `},
+
+      { id:'hbase', icon:'🗃️', module:'Module 04 — NoSQL Database', title:'Apache ', titleEm:'HBase', body:`
+        <p class="lead">HBase is a distributed NoSQL database on top of Hadoop, inspired by Google's Bigtable. It fills the gap HDFS cannot — structured, low-latency, random-access reads and writes.</p>
+        <h3>Why Not Plain Hadoop?</h3>
+        <table class="kv-table">
+          <thead><tr><th>Requirement</th><th>HDFS</th><th>HBase</th></tr></thead>
+          <tbody>
+            <tr><td>Structured data</td><td>❌ Unstructured</td><td>✅ 4D columnar model</td></tr>
+            <tr><td>Random access</td><td>❌ Sequential only</td><td>✅ Row key index</td></tr>
+            <tr><td>Low latency</td><td>❌ High latency</td><td>✅ Real-time reads</td></tr>
+            <tr><td>ACID compliance</td><td>❌ None</td><td>✅ At row level</td></tr>
+          </tbody>
+        </table>
+        <h3>Data Model — 4 Dimensions</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🔑</div><div class="card-sm-title">Row Key</div><div class="card-sm-desc">Unique identifier. Sorted ascending. Enables fast lookups.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📁</div><div class="card-sm-title">Column Family</div><div class="card-sm-desc">Groups of columns stored together. Defined at schema creation.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📊</div><div class="card-sm-title">Column</div><div class="card-sm-desc">Unit within a family. Can be added dynamically.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">⏱️</div><div class="card-sm-title">Timestamp</div><div class="card-sm-desc">Version number for each value. Older versions accessible.</div></div>
+        </div>
+        <h3>Write Path</h3>
+        <div class="flow">
+          <div class="flow-node">Client Write</div><div class="flow-arrow">→</div>
+          <div class="flow-node">WAL (disk)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Memstore (RAM)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">HFile (HDFS)</div>
+        </div>
+        <h3>CAP Theorem Position</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🔵</div><div class="card-sm-title">CA — SQL DBs</div><div class="card-sm-desc">Consistency + Availability. No partition tolerance.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🟠</div><div class="card-sm-title">AP — Cassandra</div><div class="card-sm-desc">Available even if stale. Eventually consistent.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🟢</div><div class="card-sm-title">CP — HBase</div><div class="card-sm-desc">Returns error if latest data unavailable. Banking, chat.</div></div>
+        </div>
+      `},
+
+      { id:'sqoop', icon:'🔄', module:'Module 05 — Data Ingestion', title:'Apache ', titleEm:'Sqoop', body:`
+        <p class="lead">Sqoop transfers data between Hadoop (HDFS) and relational databases using parallel MapReduce jobs — only mappers, no reducers.</p>
+        <h3>The 3 Core Operations</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">⬇️</div><div class="card-sm-title">sqoop import</div><div class="card-sm-desc">RDBMS → HDFS. Each table row becomes an HDFS record.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">⬆️</div><div class="card-sm-title">sqoop export</div><div class="card-sm-desc">HDFS → RDBMS. Target table must exist beforehand.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔍</div><div class="card-sm-title">sqoop eval</div><div class="card-sm-desc">Run SQL queries against the RDBMS directly from Sqoop.</div></div>
+        </div>
+        <h3>How Parallelism Works</h3>
+        <pre><span class="cmt"># Default 4 mappers split work using the primary key range</span>
+split_size = (max_pk - min_pk) / num_mappers
+<span class="cmt"># Each mapper runs a bounded SELECT</span>
+<span class="op">SELECT</span> * <span class="op">FROM</span> orders <span class="op">WHERE</span> order_id <span class="op">BETWEEN</span> <span class="val">1</span> <span class="op">AND</span> <span class="val">17220</span></pre>
+        <div class="callout orange"><span class="callout-icon">⚠️</span><p class="callout-text"><strong>No primary key?</strong> Use <code>--split-by column_name</code> with a numeric column, or set <code>--num-mappers 1</code> (loses parallelism).</p></div>
+        <h3>Import Modes</h3>
+        <table class="kv-table">
+          <thead><tr><th>Mode</th><th>Use Case</th><th>Key Flag</th></tr></thead>
+          <tbody>
+            <tr><td>Full Load</td><td>Initial data dump</td><td>(default)</td></tr>
+            <tr><td>Incremental Append</td><td>New rows only</td><td><code>--incremental append</code></td></tr>
+            <tr><td>Last-Modified</td><td>Capture updates by timestamp</td><td><code>--incremental lastmodified</code></td></tr>
+            <tr><td>Sqoop Job</td><td>Auto-tracks last-value between runs</td><td><code>sqoop job --create</code></td></tr>
+          </tbody>
+        </table>
+      `},
+
+      { id:'airflow', icon:'🌊', module:'Module 06 — Orchestration', title:'Apache ', titleEm:'Airflow', body:`
+        <p class="lead">Airflow is a batch workflow orchestration platform. Programmatically create, schedule, and monitor complex pipelines of dependent tasks — replacing fragile Cron job chains.</p>
+        <h3>Core Concept: DAG</h3>
+        <p>A <strong>DAG (Directed Acyclic Graph)</strong> is a collection of all tasks organized to reflect their relationships and dependencies. No cycles allowed.</p>
+        <h3>Components</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🖥️</div><div class="card-sm-title">UI</div><div class="card-sm-desc">Visual DAG view. Manage connections and variables.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">⏰</div><div class="card-sm-title">Scheduler</div><div class="card-sm-desc">Reads DAG definitions and triggers execution at the right time.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">⚙️</div><div class="card-sm-title">Worker</div><div class="card-sm-desc">Executes individual tasks assigned by the scheduler.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🗄️</div><div class="card-sm-title">Metadata Store</div><div class="card-sm-desc">MySQL storing DAG state, connections, variables, and history.</div></div>
+        </div>
+        <h3>Cron Syntax</h3>
+        <pre><span class="cmt"># minute  hour  day(month)  month  day(week)</span>
+  * * * * *   <span class="cmt"># every minute</span>
+  0 2 * * *   <span class="cmt"># every day at 2 AM</span>
+  0 0 * * 0   <span class="cmt"># every Sunday midnight</span></pre>
+        <h3>Real Pipeline Example</h3>
+        <div class="flow">
+          <div class="flow-node">Watch S3</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Download Orders</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Sqoop → Hive</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Upload HDFS</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Spark Job</div><div class="flow-arrow">→</div>
+          <div class="flow-node">HBase</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Slack Alert</div>
+        </div>
+        <ul class="styled">
+          <li><strong>Scalable</strong>: Horizontal scaling, parallel task processing</li>
+          <li><strong>Extensible</strong>: Operators are Python classes — write your own</li>
+          <li><strong>Trigger Rules</strong>: <code>all_success</code> (default), <code>one_success</code>, <code>all_failed</code></li>
+        </ul>
+      `},
+
+      { id:'athena', icon:'☁️', module:'Module 07 — Cloud Analytics', title:'AWS Athena ', titleEm:'+ Glue', body:`
+        <p class="lead">Athena is a serverless SQL query engine for data in S3. Glue is the managed ETL and schema-discovery service — together they form the modern cloud data lake stack.</p>
+        <h3>The Core Analogy</h3>
+        <table class="kv-table">
+          <thead><tr><th>On-Prem</th><th>AWS Equivalent</th></tr></thead>
+          <tbody>
+            <tr><td>HDFS</td><td>Amazon S3</td></tr>
+            <tr><td>Hive Metastore</td><td>AWS Glue Data Catalog</td></tr>
+            <tr><td>Hive / Presto</td><td>Amazon Athena</td></tr>
+            <tr><td>Spark ETL</td><td>AWS Glue ETL Jobs (PySpark)</td></tr>
+          </tbody>
+        </table>
+        <div class="callout orange"><span class="callout-icon">💰</span><p class="callout-text"><strong>$5 per TB scanned.</strong> Minimum 10 MB per query. Failed queries not charged. DDL statements free.</p></div>
+        <h3>Cost Optimization</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🏛️</div><div class="card-sm-title">Column Pruning</div><div class="card-sm-desc">Use Parquet / ORC to skip unneeded columns.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📂</div><div class="card-sm-title">Partition Pruning</div><div class="card-sm-desc">Partition by year/month/subject to skip entire folders.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🗜️</div><div class="card-sm-title">Compression</div><div class="card-sm-desc">Snappy or Gzip to reduce data scanned.</div></div>
+        </div>
+        <h3>Athena vs Redshift</h3>
+        <table class="kv-table">
+          <thead><tr><th>Factor</th><th>Athena</th><th>Redshift</th></tr></thead>
+          <tbody>
+            <tr><td>Setup</td><td>Zero — serverless</td><td>Cluster setup required</td></tr>
+            <tr><td>Cost model</td><td>Pay per TB scanned</td><td>Pay per provisioned hour</td></tr>
+            <tr><td>Best for</td><td>Ad-hoc, infrequent queries on S3</td><td>Frequent, complex BI analytics</td></tr>
+            <tr><td>Data location</td><td>Stays in S3</td><td>Loaded into Redshift</td></tr>
+          </tbody>
+        </table>
+      `}
+
+    ]
+  }
+
+  ,
+
+  ml: {
+    label: 'Series 02 · Machine Learning',
+    title: 'Machine ',
+    titleEm: 'Learning',
+    articles: [
+
+      { id:'ml-overview', icon:'🤖', module:'Module 01 — Overview', title:'What is ', titleEm:'Machine Learning?', body:`
+        <p class="lead">Machine learning is teaching computers to learn from data so they can make decisions without being explicitly programmed for every scenario.</p>
+        <h3>The 3 Core Types</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🎯</div><div class="card-sm-title">Supervised Learning</div><div class="card-sm-desc">Learn from labeled data. Example: predicting house prices from area &amp; location.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔍</div><div class="card-sm-title">Unsupervised Learning</div><div class="card-sm-desc">Find patterns in unlabeled data. Example: grouping customers by purchase behavior.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🏆</div><div class="card-sm-title">Reinforcement Learning</div><div class="card-sm-desc">Learn by reward &amp; punishment. Example: a self-driving car learning to stop at red lights.</div></div>
+        </div>
+        <h3>Key Terms</h3>
+        <table class="kv-table">
+          <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Feature</td><td>Input data column</td><td>Age, income, education level</td></tr>
+            <tr><td>Label / Target</td><td>Output to predict</td><td>Will buy product: Yes/No</td></tr>
+            <tr><td>Training</td><td>Learning phase</td><td>Feeding past housing data to predict price</td></tr>
+            <tr><td>Overfitting</td><td>Model memorizes data, not generalizing</td><td>Student memorizes answers but fails similar questions</td></tr>
+            <tr><td>Underfitting</td><td>Model too simple, missing patterns</td><td>A straight line trying to fit a curved dataset</td></tr>
+          </tbody>
+        </table>
+        <h3>Evaluation Metrics</h3>
+        <table class="kv-table">
+          <thead><tr><th>Metric</th><th>Meaning</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Accuracy</td><td>% of total correct answers</td><td>85 correct out of 100 → 85%</td></tr>
+            <tr><td>Precision</td><td>% of correct positive predictions</td><td>Predicts 10 frauds, 8 are true → 80%</td></tr>
+            <tr><td>Recall</td><td>% of actual positives found</td><td>Out of 10 real frauds, model found 6 → 60%</td></tr>
+            <tr><td>F1 Score</td><td>Balance between precision &amp; recall</td><td>Useful when both matter equally</td></tr>
+          </tbody>
+        </table>
+        <h3>The Standard ML Workflow</h3>
+        <div class="flow">
+          <div class="flow-node">Load Data</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Train/Test Split</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Scale Features</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Train Model</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Predict</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Evaluate</div>
+        </div>
+        <h3>AI Landscape — Where ML Fits</h3>
+        <ul class="styled">
+          <li><strong>AI</strong> — broad field enabling machines to mimic human intelligence</li>
+          <li><strong>Machine Learning</strong> — subset of AI; systems learn from data</li>
+          <li><strong>Deep Learning</strong> — subset of ML; multi-layer neural networks</li>
+          <li><strong>NLP, Computer Vision, Robotics</strong> — applied AI subfields powered by ML/DL</li>
+        </ul>
+      `},
+
+      { id:'supervised', icon:'🎯', module:'Module 02 — Supervised Learning', title:'Supervised ', titleEm:'Learning', body:`
+        <p class="lead">Supervised learning trains on labeled data — every example has a known input and output. The model learns to map inputs to outputs and generalize to new data.</p>
+        <h3>Regression vs Classification</h3>
+        <div class="compare">
+          <div class="compare-col left"><h4>Regression — predicts a number</h4><ul class="styled"><li>House price prediction</li><li>Stock price forecasting</li><li>Electricity demand estimation</li></ul></div>
+          <div class="compare-col right"><h4>Classification — predicts a category</h4><ul class="styled"><li>Email spam detection</li><li>Credit risk assessment</li><li>Medical diagnosis (cancer / no cancer)</li></ul></div>
+        </div>
+        <h3>Algorithm Overview</h3>
+        <table class="kv-table">
+          <thead><tr><th>Algorithm</th><th>Type</th><th>Real-World Analogy</th></tr></thead>
+          <tbody>
+            <tr><td>Linear Regression</td><td>Regression</td><td>Drawing the best-fit line through data points on a graph</td></tr>
+            <tr><td>Logistic Regression</td><td>Classification</td><td>A scale giving a number 0–1; over 0.5 = yes</td></tr>
+            <tr><td>Decision Tree</td><td>Both</td><td>A flowchart of yes/no questions leading to a decision</td></tr>
+            <tr><td>Random Forest</td><td>Both</td><td>Asking 100 friends for advice and taking majority opinion</td></tr>
+            <tr><td>SVM</td><td>Classification (mainly)</td><td>Separating cats and dogs with the widest possible fence</td></tr>
+            <tr><td>KNN</td><td>Both</td><td>Guessing your preferences by asking your K closest neighbors</td></tr>
+            <tr><td>Gradient Boosting (XGBoost)</td><td>Both</td><td>Tutors correcting student mistakes step by step</td></tr>
+            <tr><td>Neural Networks</td><td>Both</td><td>Layers of tiny calculators collaborating to reach a decision</td></tr>
+          </tbody>
+        </table>
+      `},
+
+      { id:'linear-reg', icon:'📈', module:'Module 03 — Regression', title:'Linear & Logistic ', titleEm:'Regression', body:`
+        <p class="lead">Two foundational algorithms — linear regression predicts continuous numbers, logistic regression predicts probabilities for classification problems.</p>
+        <h3>Linear Regression</h3>
+        <p>Finds the best-fit straight line through data: <strong>y = wx + b</strong></p>
+        <ul class="styled">
+          <li><strong>w</strong> = slope — how steep the line is (effect of input on output)</li>
+          <li><strong>b</strong> = intercept — where the line crosses the y-axis (base value)</li>
+          <li>We minimize the average <strong>squared error</strong> between predictions and actuals</li>
+          <li><strong>Gradient descent</strong> iteratively adjusts w and b to reduce this error</li>
+        </ul>
+        <h3>Grocery Store Example</h3>
+        <pre><span class="cmt"># Model: y = 3.5x + 200</span>
+<span class="cmt"># w=3.5 → avg price per item | b=200 → base revenue (memberships etc.)</span>
+Items sold (x) = 100  →  Revenue = 3.5 × 100 + 200 = $550
+Items sold (x) = 300  →  Revenue = 3.5 × 300 + 200 = $1,250</pre>
+        <h3>Logistic Regression</h3>
+        <p>Uses the linear formula <strong>z = wx + b</strong>, then passes it through the <strong>sigmoid function</strong> to produce a probability between 0 and 1.</p>
+        <pre><span class="cmt"># Sigmoid squeezes any number into [0, 1]</span>
+sigmoid(z) = 1 / (1 + e^(-z))
+
+z = -100  →  ~0.0   (definitely No)
+z =  0    →   0.5   (50/50)
+z = +100  →  ~1.0   (definitely Yes)
+
+<span class="cmt"># Predict: if y >= 0.5 → class 1, else class 0</span></pre>
+        <h3>Package Delivery Example</h3>
+        <table class="kv-table">
+          <thead><tr><th>Distance (x)</th><th>z = -0.1x + 5</th><th>Probability y</th><th>Prediction</th></tr></thead>
+          <tbody>
+            <tr><td>0 miles</td><td>5</td><td>0.993</td><td>On time ✅</td></tr>
+            <tr><td>50 miles</td><td>0</td><td>0.500</td><td>Maybe</td></tr>
+            <tr><td>100 miles</td><td>-5</td><td>0.007</td><td>Late ❌</td></tr>
+          </tbody>
+        </table>
+      `},
+
+      { id:'trees', icon:'🌳', module:'Module 04 — Tree Models', title:'Decision Trees & ', titleEm:'Random Forest', body:`
+        <p class="lead">Decision trees split data into branches using yes/no rules. Random forests combine many trees to vote, dramatically reducing overfitting.</p>
+        <h3>Decision Tree — How It Works</h3>
+        <ul class="styled">
+          <li>Starts at the <strong>root</strong> and asks the best yes/no question to split the data</li>
+          <li>Follows branches based on answers, repeating until a <strong>leaf (decision)</strong> is reached</li>
+          <li>Chooses splits using <strong>Gini Impurity</strong> or <strong>Entropy</strong> (classification), or <strong>MSE</strong> (regression)</li>
+          <li>Goal: make each split group as <strong>pure</strong> as possible (one dominant class)</li>
+        </ul>
+        <pre><span class="cmt"># Ice cream prediction tree</span>
+Is Temperature = Hot?
+    ├── Yes → All 3 examples say Yes → pure leaf → Predict: YES
+    └── No  → All 2 examples say No  → pure leaf → Predict: NO</pre>
+        <h3>Splitting Metrics Summary</h3>
+        <table class="kv-table">
+          <thead><tr><th>Metric</th><th>Type</th><th>Goal</th></tr></thead>
+          <tbody>
+            <tr><td>Gini Impurity</td><td>Classification</td><td>Minimize impurity (~0.444 for 2:1 split)</td></tr>
+            <tr><td>Entropy / Info Gain</td><td>Classification</td><td>Maximize information gained (~0.918)</td></tr>
+            <tr><td>Mean Squared Error</td><td>Regression</td><td>Minimize prediction error</td></tr>
+          </tbody>
+        </table>
+        <h3>Random Forest</h3>
+        <p>A team of decision trees — each trained on a <strong>random sample of rows</strong> (bootstrapping) and a <strong>random subset of features</strong>. Final answer = majority vote (classification) or average (regression).</p>
+        <div class="callout accent"><span class="callout-icon">💡</span><p class="callout-text"><strong>Why "random"?</strong> Diversity is the key. If all trees made the same splits, the forest would just be one tree. Random sampling ensures each tree makes different mistakes — averaging them out reduces overall error.</p></div>
+        <pre><span class="cmt"># 3 trees vote on: will person G (age 28) buy apples?</span>
+Tree 1 (trained on A,C,D,F): age &lt; 30 → Yes  →  Yes
+Tree 2 (trained on B,C,E,F): age &lt; 35 → Yes  →  Yes
+Tree 3 (trained on A,B,D,E): age &lt; 25 → Yes  →  No
+
+<span class="cmt"># Majority vote: Yes=2, No=1 → Final: YES</span></pre>
+      `},
+
+      { id:'knn-svm', icon:'📐', module:'Module 05 — Instance & Boundary Models', title:'KNN & ', titleEm:'SVM', body:`
+        <p class="lead">K-Nearest Neighbors predicts by looking at the K closest data points. Support Vector Machine finds the boundary that separates classes with the maximum margin.</p>
+        <h3>K-Nearest Neighbors (KNN)</h3>
+        <p>"To guess what you like, I'll ask your K closest friends." — No training phase, just stores all data and computes distances at prediction time (lazy learning).</p>
+        <pre><span class="cmt"># Euclidean distance from new point x to training point xi</span>
+d(x, xi) = sqrt((x1 - xi1)² + (x2 - xi2)² + ...)
+
+<span class="cmt"># Ice cream example: new person age=24, K=3</span>
+Person B (age 25) → dist=1 → label=1 (Yes)
+Person A (age 22) → dist=2 → label=1 (Yes)
+Person C (age 28) → dist=4 → label=0 (No)
+<span class="cmt"># Vote: [1,1,0] → majority = 1 → Predict: YES</span></pre>
+        <h3>KNN vs K-Means</h3>
+        <table class="kv-table">
+          <thead><tr><th>Feature</th><th>KNN (Neighbors)</th><th>K-Means (Clustering)</th></tr></thead>
+          <tbody>
+            <tr><td>Supervised?</td><td>Yes</td><td>No</td></tr>
+            <tr><td>Use case</td><td>Classification, Regression</td><td>Grouping (Clustering)</td></tr>
+            <tr><td>K means</td><td>"How many neighbors to ask"</td><td>"How many clusters to form"</td></tr>
+            <tr><td>Learns a model?</td><td>No (lazy learning)</td><td>Yes (iterative)</td></tr>
+          </tbody>
+        </table>
+        <h3>Support Vector Machine (SVM)</h3>
+        <p>Finds the <strong>hyperplane w·x + b = 0</strong> that separates two classes with the <strong>maximum margin</strong>. Points closest to the boundary are called <strong>support vectors</strong>.</p>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">📏</div><div class="card-sm-title">Hyperplane</div><div class="card-sm-desc">The decision boundary separating classes. Line in 2D, plane in 3D.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">↔️</div><div class="card-sm-title">Margin</div><div class="card-sm-desc">Distance from the hyperplane to the nearest data point. SVM maximizes this.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔵</div><div class="card-sm-title">Hard Margin</div><div class="card-sm-desc">No misclassification allowed. Only works on linearly separable data.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🟠</div><div class="card-sm-title">Soft Margin</div><div class="card-sm-desc">Allows some errors. Used in real-world noisy data.</div></div>
+        </div>
+        <pre><span class="cmt"># Spam email example: w=[0.5, -0.01], b=-1</span>
+f(x) = 0.5 × links - 0.01 × words - 1
+
+New email: links=6, words=60
+f(x) = 0.5×6 - 0.01×60 - 1 = 3 - 0.6 - 1 = 1.4
+<span class="cmt"># f(x) > 0 → predicted label = +1 → SPAM</span></pre>
+      `},
+
+      { id:'boosting', icon:'🚀', module:'Module 06 — Ensemble Methods', title:'Gradient ', titleEm:'Boosting', body:`
+        <p class="lead">Gradient Boosting builds decision trees sequentially — each tree learns to fix the errors (residuals) of the previous one. This produces a highly accurate ensemble model.</p>
+        <h3>The Core Idea</h3>
+        <div class="callout purple"><span class="callout-icon">📚</span><p class="callout-text"><strong>Think of it like a tutor:</strong> First try → kid gets it partly wrong. Next session → tutor focuses only on what they got wrong. Repeat until mastered. Each step "boosts" overall accuracy.</p></div>
+        <h3>Step-by-Step Math (House Price Example)</h3>
+        <pre><span class="cmt"># Dataset: 3 houses with prices 300k, 400k, 500k</span>
+<span class="cmt"># Learning rate α = 0.1</span>
+
+<span class="cmt"># Step 0: Start with mean prediction</span>
+y_hat(0) = (300k + 400k + 500k) / 3 = 400k
+
+<span class="cmt"># Step 1: Compute residuals (errors)</span>
+House A: 300k - 400k = -100k
+House B: 400k - 400k =    0
+House C: 500k - 400k = +100k
+
+<span class="cmt"># Step 2: Tree 1 predicts residuals, update with α</span>
+House A: 400k + 0.1×(-100k) = 390k
+House C: 400k + 0.1×(+100k) = 410k
+
+<span class="cmt"># Step 3: New residuals → Tree 2 → update again...</span>
+<span class="cmt"># Each tree gets predictions closer to actuals</span></pre>
+        <h3>Why It's Powerful</h3>
+        <ul class="styled">
+          <li>Learns slowly (learning rate controls step size) but very <strong>accurately</strong></li>
+          <li>Can fit <strong>complex non-linear patterns</strong> in tabular data</li>
+          <li>Used in <strong>XGBoost</strong>, <strong>LightGBM</strong>, and <strong>CatBoost</strong> — top competition tools</li>
+        </ul>
+        <table class="kv-table">
+          <thead><tr><th>Step</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Start</td><td>Predict average of target</td></tr>
+            <tr><td>Residuals</td><td>actual − current prediction</td></tr>
+            <tr><td>Tree</td><td>Predicts those residuals</td></tr>
+            <tr><td>Update</td><td>y_new = y_old + α × tree_output</td></tr>
+            <tr><td>Repeat</td><td>Until residuals are small</td></tr>
+          </tbody>
+        </table>
+      `},
+
+      { id:'neural-nets', icon:'🧠', module:'Module 07 — Neural Networks', title:'Neural ', titleEm:'Networks', body:`
+        <p class="lead">Neural networks mimic the brain — layered neurons pass weighted signals forward, learn from mistakes, and adjust their weights to improve predictions.</p>
+        <h3>Architecture</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">📥</div><div class="card-sm-title">Input Layer</div><div class="card-sm-desc">Receives raw features (e.g., age=20, temp=90).</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔗</div><div class="card-sm-title">Hidden Layer(s)</div><div class="card-sm-desc">Each neuron computes z = w·x + b, then applies an activation function.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📤</div><div class="card-sm-title">Output Layer</div><div class="card-sm-desc">Combines hidden outputs into final prediction. Sigmoid → probability.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔄</div><div class="card-sm-title">Backpropagation</div><div class="card-sm-desc">Computes error gradient and updates all weights via gradient descent.</div></div>
+        </div>
+        <h3>Forward Pass — Step by Step</h3>
+        <pre><span class="cmt"># Input: Age=20, Temp=90 → x = [20, 90]</span>
+
+<span class="cmt"># Hidden Neuron 1</span>
+z1 = 0.01×20 + 0.02×90 + 0.1 = 2.1
+a1 = sigmoid(2.1) ≈ 0.89
+
+<span class="cmt"># Hidden Neuron 2</span>
+z2 = 0.03×20 + 0.01×90 + 0.1 = 1.6
+a2 = sigmoid(1.6) ≈ 0.83
+
+<span class="cmt"># Output Layer</span>
+z = 0.5×0.89 + 0.5×0.83 + 0.1 = 0.96
+y = sigmoid(0.96) ≈ 0.72
+
+<span class="cmt"># y=0.72 > 0.5 → Predict: YES (will buy ice cream)</span></pre>
+        <h3>Key Components</h3>
+        <table class="kv-table">
+          <thead><tr><th>Component</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td>Weights (w)</td><td>Control how much each input influences a neuron</td></tr>
+            <tr><td>Bias (b)</td><td>Shifts the output — adds flexibility to the model</td></tr>
+            <tr><td>Activation (sigmoid)</td><td>Squashes output between 0–1; introduces non-linearity</td></tr>
+            <tr><td>Loss function</td><td>Measures prediction error (e.g., cross-entropy)</td></tr>
+            <tr><td>Gradient descent</td><td>Adjusts all weights to minimize the loss</td></tr>
+          </tbody>
+        </table>
+      `},
+
+      { id:'unsupervised', icon:'🔍', module:'Module 08 — Unsupervised Learning', title:'Unsupervised ', titleEm:'Learning', body:`
+        <p class="lead">Unsupervised learning finds hidden patterns in data without labels. The algorithm discovers structure on its own — grouping, compressing, or detecting anomalies.</p>
+        <h3>Four Main Branches</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🫧</div><div class="card-sm-title">Clustering</div><div class="card-sm-desc">Group similar data points. K-Means, DBSCAN, Hierarchical.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📉</div><div class="card-sm-title">Dimensionality Reduction</div><div class="card-sm-desc">Compress features while keeping core info. PCA, t-SNE, UMAP.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔗</div><div class="card-sm-title">Association Rules</div><div class="card-sm-desc">Find "if A then B" patterns. Apriori, FP-Growth. Market basket analysis.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🚨</div><div class="card-sm-title">Anomaly Detection</div><div class="card-sm-desc">Spot unusual data points. Isolation Forest, One-Class SVM.</div></div>
+        </div>
+        <h3>K-Means Clustering — Step by Step</h3>
+        <pre><span class="cmt"># Goal: group customers by spending & visits, K=2</span>
+<span class="cmt"># Step 1: Initialize centroids randomly</span>
+μ1 = (200, 5)   <span class="cmt"># cluster 1 center</span>
+μ2 = (1000, 15) <span class="cmt"># cluster 2 center</span>
+
+<span class="cmt"># Step 2: Assign each point to nearest centroid</span>
+<span class="cmt"># Euclidean distance = sqrt((x1-μ1)² + (x2-μ2)²)</span>
+
+<span class="cmt"># Step 3: Update centroids to mean of assigned points</span>
+<span class="cmt"># Step 4: Repeat until centroids stop moving</span></pre>
+        <h3>Association Rule Mining</h3>
+        <p>Finds patterns like: <strong>{Milk, Diaper} ⇒ Bread</strong>. Three key metrics:</p>
+        <table class="kv-table">
+          <thead><tr><th>Metric</th><th>Formula</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Support</td><td>|A ∩ B| / total</td><td>How often the rule applies (40% = common)</td></tr>
+            <tr><td>Confidence</td><td>|A ∩ B| / |A|</td><td>How reliable the rule is (66.7% = fairly reliable)</td></tr>
+            <tr><td>Lift</td><td>Confidence / Support(B)</td><td>&gt;1 = positive association, &lt;1 = negative</td></tr>
+          </tbody>
+        </table>
+        <h3>Anomaly Detection — Z-Score</h3>
+        <pre><span class="cmt"># Z-Score: how many standard deviations a point is from the mean</span>
+Z = (x - μ) / σ
+
+<span class="cmt"># Rule: if |Z| > 3 → anomaly</span>
+<span class="cmt"># Sales data: [50, 52, 48, 51, 49, 47, 53, 1000]</span>
+<span class="cmt"># Test 1000: Z = (1000 - 50) / 2 = 475 → 🚨 ANOMALY</span></pre>
+      `},
+
+      { id:'reinforcement', icon:'🏆', module:'Module 09 — Reinforcement Learning', title:'Reinforcement ', titleEm:'Learning', body:`
+        <p class="lead">RL is learning by trial and error — an agent interacts with an environment, receives reward or penalty, and learns which actions maximize long-term reward.</p>
+        <div class="callout accent"><span class="callout-icon">🐶</span><p class="callout-text"><strong>Puppy Analogy:</strong> Give a treat (reward) when it sits on command. Over time it learns: sitting = treat. RL works exactly the same way.</p></div>
+        <h3>The 4 RL Types</h3>
+        <table class="kv-table">
+          <thead><tr><th>Type</th><th>What It Does</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Model-Free</td><td>Learns from direct trial &amp; error</td><td>"Morning refill worked → do it again"</td></tr>
+            <tr><td>Model-Based</td><td>Builds a model of the environment, then plans</td><td>"Rush hour coming → refill 1 hour earlier"</td></tr>
+            <tr><td>Policy-Based</td><td>Directly learns a rule (what to do in each state)</td><td>"Morning → always refill; afternoon → wait"</td></tr>
+            <tr><td>Value-Based</td><td>Assigns a value score to each action, picks highest</td><td>"Morning refill = +9.5; do nothing = -3"</td></tr>
+          </tbody>
+        </table>
+        <h3>Q-Learning Formula (Bellman Update)</h3>
+        <pre><span class="cmt"># Q(s,a) = current value of taking action a in state s</span>
+Q(s,a) ← Q(s,a) + α × [R + γ × max Q(s',a') - Q(s,a)]
+
+<span class="cmt"># Juice Shop example</span>
+Q(Morning, Refill) = 4       <span class="cmt"># initial estimate</span>
+α = 0.5                       <span class="cmt"># learning rate</span>
+R = 10                        <span class="cmt"># reward for selling juice</span>
+γ = 0.9                       <span class="cmt"># discount factor</span>
+max Q(Afternoon) = 6          <span class="cmt"># best future estimate</span>
+
+Target = 10 + 0.9 × 6 = 15.4
+Error  = 15.4 - 4 = 11.4
+Q(Morning, Refill) = 4 + 0.5 × 11.4 = 9.7  <span class="cmt"># updated!</span></pre>
+        <h3>Policy Gradient (Policy-Based)</h3>
+        <pre><span class="cmt"># Update policy parameters θ to maximize expected reward J(θ)</span>
+θ ← θ + α × ∇J(θ)
+
+<span class="cmt"># Juice robot greeting policy — SoftMax probabilities</span>
+<span class="cmt"># After update: Cheerful θ: 0.4 → 0.46 (reward was +10)</span>
+<span class="cmt"># Agent learns to greet cheerfully more often in the morning</span></pre>
+        <h3>Bellman Equation — Value Function</h3>
+        <pre><span class="cmt"># V(s) = expected value of being in state s under best policy</span>
+V(s) = max_a Σ P(s'|s,a) × [R(s,a,s') + γ × V(s')]
+
+<span class="cmt"># Morning state: Refill vs Wait</span>
+Q(Morning, Refill) = 0.7×(10+0.9×15) + 0.3×(5+0.9×8) = 20.11
+Q(Morning, Wait)   = 0.4×(4+0.9×15)  + 0.6×(2+0.9×8) = 12.52
+V(Morning) = max(20.11, 12.52) = 20.11  <span class="cmt"># → Refill wins</span></pre>
+      `}
+
+    ]
+  }
+
+  ,
+
+  ai: {
+    label: 'Series 03 · AI Agents',
+    title: 'AI ',
+    titleEm: 'Agents',
+    articles: [
+
+      { id:'ai-evolution', icon:'🧬', module:'Module 01 — The Big Picture', title:'AI Evolution & ', titleEm:'The Stack',  body:`
+        <p class="lead">AI didn't arrive all at once — it evolved in layers. Each layer added more capability, moving from simple prediction to full autonomous action.</p>
+        <h3>The Evolution Ladder</h3>
+        <div class="flow">
+          <div class="flow-node">AI & ML</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Deep Learning</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Generative AI</div><div class="flow-arrow">→</div>
+          <div class="flow-node">AI Agents</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Agentic AI</div>
+        </div>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">📊</div><div class="card-sm-title">AI & ML</div><div class="card-sm-desc">Learns from data, makes predictions. Spam filters, recommendations. <em>"AI that analyzes."</em></div></div>
+          <div class="card-sm"><div class="card-sm-icon">🧠</div><div class="card-sm-title">Deep Learning</div><div class="card-sm-desc">Neural networks handling complex data — images, text, audio. Transformers. <em>"AI that understands patterns deeply."</em></div></div>
+          <div class="card-sm"><div class="card-sm-icon">✨</div><div class="card-sm-title">Generative AI</div><div class="card-sm-desc">Creates new content. ChatGPT → text. DALL·E → images. <em>"AI that creates."</em></div></div>
+          <div class="card-sm"><div class="card-sm-icon">⚙️</div><div class="card-sm-title">AI Agents</div><div class="card-sm-desc">Plans tasks, uses tools, executes workflows. <em>"AI that works."</em></div></div>
+          <div class="card-sm"><div class="card-sm-icon">🚀</div><div class="card-sm-title">Agentic AI</div><div class="card-sm-desc">Fully autonomous — self-improves, coordinates multiple agents end-to-end. <em>"AI that runs the whole system."</em></div></div>
+        </div>
+        <h3>The Final Shift</h3>
+        <table class="kv-table">
+          <thead><tr><th>Era</th><th>Capability</th></tr></thead>
+          <tbody>
+            <tr><td>Early AI</td><td>Prediction</td></tr>
+            <tr><td>Deep Learning</td><td>Understanding</td></tr>
+            <tr><td>Generative AI</td><td>Creation</td></tr>
+            <tr><td>Agentic AI</td><td>Action & Autonomy</td></tr>
+          </tbody>
+        </table>
+        <div class="callout accent"><span class="callout-icon">💡</span><p class="callout-text"><strong>One-line takeaway:</strong> We are moving from "AI that answers" → to "AI that acts and automates everything."</p></div>
+      `},
+
+      { id:'llm-rag-agents', icon:'🔗', module:'Module 02 — LLM vs RAG vs Agents', title:'LLM, RAG & ', titleEm:'Agents Compared', body:`
+        <p class="lead">These three are often confused because each one builds on top of the previous. The key is: every layer adds a new capability.</p>
+        <div class="flow">
+          <div class="flow-node">LLM</div><div class="flow-arrow">→</div>
+          <div class="flow-node">+ Retrieval = RAG</div><div class="flow-arrow">→</div>
+          <div class="flow-node">+ Memory + Tools + Planning = Agent</div>
+        </div>
+        <h3>Layer by Layer</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🎓</div><div class="card-sm-title">LLM</div><div class="card-sm-desc">The core brain. Trained on large datasets. Generates text/code. No real-time knowledge, no actions.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📖</div><div class="card-sm-title">RAG</div><div class="card-sm-desc">LLM + external knowledge. Retrieves docs/DBs/PDFs and feeds them to the LLM. Solves hallucinations &amp; stale data.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">💼</div><div class="card-sm-title">Agent</div><div class="card-sm-desc">LLM + Memory + Tools + Planning. Breaks goals into steps, calls APIs, runs code, iterates on results.</div></div>
+        </div>
+        <h3>Side-by-Side Comparison</h3>
+        <table class="kv-table">
+          <thead><tr><th>Feature</th><th>LLM</th><th>RAG</th><th>Agent</th></tr></thead>
+          <tbody>
+            <tr><td>Knowledge</td><td>Training data only</td><td>External + real-time</td><td>External + evolving</td></tr>
+            <tr><td>Actions</td><td>No</td><td>No</td><td>Yes</td></tr>
+            <tr><td>Use cases</td><td>Q&amp;A, content</td><td>Enterprise search</td><td>Automation, workflows</td></tr>
+            <tr><td>Complexity</td><td>Low</td><td>Medium</td><td>High</td></tr>
+            <tr><td>Example</td><td>ChatGPT response</td><td>Chat over company docs</td><td>Auto ETL + reporting</td></tr>
+          </tbody>
+        </table>
+        <h3>Real-World Analogy</h3>
+        <table class="kv-table">
+          <thead><tr><th>System</th><th>Analogy</th></tr></thead>
+          <tbody>
+            <tr><td>LLM</td><td>Smart student — knows a lot from studying</td></tr>
+            <tr><td>RAG</td><td>Student with open book — can look things up</td></tr>
+            <tr><td>Agent</td><td>Employee — can work, decide, and execute tasks</td></tr>
+          </tbody>
+        </table>
+        <h3>Loan Dashboard Example</h3>
+        <div class="flow">
+          <div class="flow-node">Fetch data (S3)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Clean data (Spark)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Create visuals (Power BI)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Validate output</div><div class="flow-arrow">→</div>
+          <div class="flow-node">All automatically</div>
+        </div>
+      `},
+
+      { id:'llm-internals', icon:'⚙️', module:'Module 03 — How LLMs Work', title:'Inside an ', titleEm:'LLM', body:`
+        <p class="lead">An LLM predicts the next token based on context — trained on massive text, it learns language, facts, and reasoning patterns well enough to appear intelligent.</p>
+        <h3>Step-by-Step: Text → Output</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">✂️</div><div class="card-sm-title">1. Tokenization</div><div class="card-sm-desc">"Purva is learning AI" → ["Pur","va"," is"," learning"," AI"]. Words become number tokens.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔢</div><div class="card-sm-title">2. Embeddings</div><div class="card-sm-desc">Each token → vector of numbers. "king" and "queen" get similar vectors. Meaning starts forming.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🧠</div><div class="card-sm-title">3. Transformer</div><div class="card-sm-desc">Self-attention figures out which words relate to each other. Dozens of layers refine understanding.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📤</div><div class="card-sm-title">4. Output</div><div class="card-sm-desc">Predicts the next token, then the next… building a full response one token at a time.</div></div>
+        </div>
+        <h3>Self-Attention — What It Does</h3>
+        <div class="callout purple"><span class="callout-icon">🔍</span><p class="callout-text">"She didn't go because <strong>she</strong> was tired" — self-attention figures out which "she" refers to what, and what "because" connects. It understands relationships between all words simultaneously.</p></div>
+        <h3>Training Process</h3>
+        <table class="kv-table">
+          <thead><tr><th>Stage</th><th>What Happens</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Pretraining</td><td>Trained on massive internet text</td><td>Learns language, facts, patterns</td></tr>
+            <tr><td>Fine-tuning (RLHF)</td><td>Trained with human feedback</td><td>Safer, more helpful, better aligned</td></tr>
+          </tbody>
+        </table>
+        <h3>Strengths vs Limitations</h3>
+        <div class="compare">
+          <div class="compare-col right"><h4>Strengths</h4><ul class="styled"><li>Text &amp; code generation</li><li>Summarization &amp; translation</li><li>Q&amp;A and reasoning</li></ul></div>
+          <div class="compare-col left"><h4>Limitations</h4><ul class="styled"><li>Can hallucinate facts</li><li>No real-time knowledge (without tools)</li><li>Pattern-based, not true understanding</li></ul></div>
+        </div>
+        <h3>LLM as a Foundation</h3>
+        <div class="flow">
+          <div class="flow-node">LLM alone</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Chatbot</div>
+        </div>
+        <div class="flow">
+          <div class="flow-node">LLM + data</div><div class="flow-arrow">→</div>
+          <div class="flow-node">RAG system</div>
+        </div>
+        <div class="flow">
+          <div class="flow-node">LLM + tools</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Agent</div>
+        </div>
+      `},
+
+      { id:'agent-arch', icon:'🏗️', module:'Module 04 — Agent Architecture', title:'Agent ', titleEm:'Architecture', body:`
+        <p class="lead">An AI agent isn't just an LLM. It's a system that perceives input, retrieves memory, reasons, plans, acts, and learns from feedback — in a continuous loop.</p>
+        <h3>The 7-Layer Architecture</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">👁️</div><div class="card-sm-title">1. Perception</div><div class="card-sm-desc">Takes input from users, APIs, files. Converts it into text, embeddings, or structured data.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">💾</div><div class="card-sm-title">2. Memory</div><div class="card-sm-desc">Short-term (conversation), long-term (vector DB), working (reasoning steps). Powered by RAG + FAISS/Pinecone.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🧠</div><div class="card-sm-title">3. Reasoning (LLM)</div><div class="card-sm-desc">Understands intent, plans steps, generates outputs. Uses Chain-of-Thought and ReAct loops.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">📋</div><div class="card-sm-title">4. Planning</div><div class="card-sm-desc">Breaks complex goals into ordered sub-tasks. Creates an execution strategy.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔧</div><div class="card-sm-title">5. Tool / Action</div><div class="card-sm-desc">Calls APIs, runs SQL queries, triggers ETL jobs, calls external services.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">▶️</div><div class="card-sm-title">6. Execution Engine</div><div class="card-sm-desc">Runs actions, handles retry logic, failures, and logging.</div></div>
+          <div class="card-sm"><div class="card-sm-icon">🔄</div><div class="card-sm-title">7. Feedback Loop</div><div class="card-sm-desc">Observes results, updates memory, adjusts plan. Try → fail → adjust → retry. This is what makes it "agentic".</div></div>
+        </div>
+        <h3>End-to-End Flow</h3>
+        <div class="flow">
+          <div class="flow-node">User Input</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Perception</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Memory (RAG)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Reasoning (LLM)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Planning</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Action</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Execution</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Feedback → Memory update</div>
+        </div>
+        <h3>Architecture Patterns</h3>
+        <table class="kv-table">
+          <thead><tr><th>Pattern</th><th>How It Works</th><th>Used For</th></tr></thead>
+          <tbody>
+            <tr><td>ReAct (most popular)</td><td>Thought → Action → Observation → loop</td><td>General-purpose agents</td></tr>
+            <tr><td>Planner + Executor</td><td>Planner creates steps, executor agents run them</td><td>Complex multi-step workflows</td></tr>
+            <tr><td>Multi-Agent</td><td>Coordinator manages research, coding, validation agents</td><td>Large autonomous systems</td></tr>
+            <tr><td>RAG-based Agent</td><td>External knowledge retrieval before reasoning</td><td>Enterprise Q&amp;A and search</td></tr>
+          </tbody>
+        </table>
+        <div class="callout accent"><span class="callout-icon">🔑</span><p class="callout-text"><strong>Key insight:</strong> An AI agent is NOT just an LLM. It's: <strong>LLM + Memory + Tools + Planning + Feedback loop</strong>.</p></div>
+      `},
+
+      { id:'ai-vs-agentic', icon:'🏢', module:'Module 05 — AI Agent vs Agentic AI', title:'AI Agent vs ', titleEm:'Agentic AI', body:`
+        <p class="lead">These sound similar but are fundamentally different in scope — one is a single system, the other is an entire design philosophy.</p>
+        <div class="compare">
+          <div class="compare-col left"><h4>AI Agent — one worker</h4><ul class="styled"><li>A single system with a specific goal</li><li>Follows predefined rules or workflows</li><li>May use tools, APIs, memory</li><li>Examples: customer support bot, trading bot, meeting scheduler</li></ul></div>
+          <div class="compare-col right"><h4>Agentic AI — the company</h4><ul class="styled"><li>Broader paradigm: goal-directed, multi-step, adaptive</li><li>Coordinates multiple specialized agents</li><li>Plans, iterates, self-improves over time</li><li>Examples: autonomous research systems, end-to-end ETL pipelines</li></ul></div>
+        </div>
+        <h3>Quick Comparison</h3>
+        <table class="kv-table">
+          <thead><tr><th>Aspect</th><th>AI Agent</th><th>Agentic AI</th></tr></thead>
+          <tbody>
+            <tr><td>Scope</td><td>Single system</td><td>System-level paradigm</td></tr>
+            <tr><td>Autonomy</td><td>Limited to moderate</td><td>High autonomy</td></tr>
+            <tr><td>Planning</td><td>Often predefined</td><td>Dynamic, multi-step</td></tr>
+            <tr><td>Collaboration</td><td>Usually none</td><td>Often multi-agent</td></tr>
+            <tr><td>Flexibility</td><td>Task-specific</td><td>General, adaptive</td></tr>
+          </tbody>
+        </table>
+        <div class="callout orange"><span class="callout-icon">🏗️</span><p class="callout-text"><strong>Bottom line:</strong> AI agents are the <em>building blocks</em>. Agentic AI is the <em>architecture</em> that uses those blocks to create autonomous, adaptive systems.</p></div>
+      `},
+
+      { id:'model-types', icon:'🗂️', module:'Module 06 — Model Types & Tech Stack', title:'Model Types & ', titleEm:'Tech Stack', body:`
+        <p class="lead">LLMs are just one type of AI model. There's a whole ecosystem of specialized models — each built for a different input type or task.</p>
+        <h3>Model Taxonomy</h3>
+        <table class="kv-table">
+          <thead><tr><th>Model</th><th>What It Does</th><th>Think of it as</th></tr></thead>
+          <tbody>
+            <tr><td>LLM</td><td>Works with text — understands &amp; generates language</td><td>"Talking AI"</td></tr>
+            <tr><td>VLM</td><td>Vision + Language — understands images &amp; text together</td><td>"AI that sees and talks"</td></tr>
+            <tr><td>SLM</td><td>Lightweight LLM — faster, cheaper, runs on-device</td><td>"Mini ChatGPT"</td></tr>
+            <tr><td>LAM</td><td>Language Action Model — reads instructions, performs tasks</td><td>"AI that can DO things"</td></tr>
+            <tr><td>MoE</td><td>Mixture of Experts — activates the best specialist per task</td><td>"Team of specialists"</td></tr>
+            <tr><td>MLM</td><td>Masked Language Model — fills missing words (BERT)</td><td>"Fill-in-the-blank AI"</td></tr>
+            <tr><td>LCM</td><td>Latent Consistency Model — faster image generation</td><td>"Fast image creator"</td></tr>
+            <tr><td>SAM</td><td>Segment Anything — draws boundaries around objects in images</td><td>"AI that cuts objects from images"</td></tr>
+          </tbody>
+        </table>
+        <h3>LangChain & LangGraph</h3>
+        <div class="cards">
+          <div class="card-sm"><div class="card-sm-icon">🔗</div><div class="card-sm-title">LangChain</div><div class="card-sm-desc">Toolkit to build AI apps. Connects LLM + Vector DB + prompts + APIs. <em>"Glue code for AI systems."</em></div></div>
+          <div class="card-sm"><div class="card-sm-icon">🧩</div><div class="card-sm-title">LangGraph</div><div class="card-sm-desc">Builds agent workflows with loops, decisions, and memory. <em>"Brain + workflow engine for agents."</em></div></div>
+        </div>
+        <h3>Full System Tech Stack</h3>
+        <table class="kv-table">
+          <thead><tr><th>Layer</th><th>Tools</th></tr></thead>
+          <tbody>
+            <tr><td>LLM / Brain</td><td>GPT-4, Claude, LLaMA, Mistral</td></tr>
+            <tr><td>Orchestration</td><td>LangChain, LlamaIndex</td></tr>
+            <tr><td>Memory / Vector DB</td><td>FAISS, Pinecone, Weaviate</td></tr>
+            <tr><td>Workflow Engine</td><td>LangGraph</td></tr>
+            <tr><td>Execution / Tools</td><td>Python, Airflow, Databricks, REST APIs</td></tr>
+            <tr><td>Data</td><td>S3, Snowflake, SQL, Spark</td></tr>
+          </tbody>
+        </table>
+        <h3>Build a ChatGPT-like System</h3>
+        <div class="flow">
+          <div class="flow-node">Chat UI (React)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Backend</div><div class="flow-arrow">→</div>
+          <div class="flow-node">LLM Layer</div><div class="flow-arrow">→</div>
+          <div class="flow-node">RAG Layer</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Agent Layer</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Tools (DB / APIs)</div><div class="flow-arrow">→</div>
+          <div class="flow-node">LangGraph</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Output</div>
+        </div>
+      `}
+
+    ]
+  }
+
+};
+
+/* ─── ROUTING ─── */
+function openSeries(key) {
+  const s = SERIES[key];
+  if (!s) return;
+
+  let html = `<div style="margin-bottom:2.5rem">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.5rem">${s.label}</div>
+    <h1 style="font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:400;line-height:1.1">${s.title}<em style="font-style:italic;color:var(--accent)">${s.titleEm}</em></h1>
+  </div>`;
+
+  s.articles.forEach((a, i) => {
+    html += `<article class="article" style="transition-delay:${i*0.07}s">
+      <div class="article-header">
+        <div class="article-icon">${a.icon}</div>
+        <div><div class="article-num">${a.module}</div><h2 class="article-title">${a.title}<em>${a.titleEm}</em></h2></div>
+      </div>
+      <div class="article-body">${a.body}</div>
+    </article>`;
+  });
+
+  document.getElementById('article-content').innerHTML = html;
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('article-view').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  requestAnimationFrame(() => {
+    document.querySelectorAll('#article-content .article').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), i * 80);
+    });
+  });
+}
+
+function showHome() {
+  document.getElementById('home-view').style.display = 'block';
+  document.getElementById('article-view').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─── FILTER ─── */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.blog-card').forEach(c => {
+      const show = f === 'all' || c.dataset.cat === f;
+      c.style.opacity = show ? '1' : '0.2';
+      c.style.pointerEvents = show ? '' : 'none';
+    });
+    const feat = document.querySelector('.featured-card');
+    if (feat) { feat.style.opacity = (f === 'all' || f === 'bigdata') ? '1' : '0.2'; }
+  });
+});
+
+/* ─── ENTRANCE ANIMATIONS ─── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)';
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.blog-card, .featured-card').forEach((el, i) => {
+  el.style.opacity = '0'; el.style.transform = 'translateY(20px)';
+  el.style.transition = `opacity 0.5s ${i*0.06}s ease, transform 0.5s ${i*0.06}s ease, border-color 0.2s, box-shadow 0.2s`;
+  obs.observe(el);
+});
+</script>
+
+</body>
+</html>
